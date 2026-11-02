@@ -1,0 +1,711 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,graphicx,enumitem}
+\usepackage[a4paper,margin=1in]{geometry}
+
+\title{COMP3020: Machine Learning\newline Theory Answers for Assignment 02}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Basic Perceptron}
+
+\subsection*{1a. Tracing the perceptron updates}
+
+Let the perceptron update be
+\[
+\text{if } y(w^\top x+b)\le 0,\quad
+(w,b)\leftarrow (w+yx,\, b+y).
+\]
+Start from $w=(0,0)$, $b=0$.
+
+We process the examples in order $A,B,C,D$.
+
+\begin{itemize}[leftmargin=1.5em]
+  \item $A=(2,1)$, $y=+1$:
+  \[
+  a = w^\top x+b = 0,\quad y a=0 \le 0
+  \]
+  so update:
+  \[
+  w=(0,0)+(1)(2,1)=(2,1),\qquad b=0+1=1.
+  \]
+
+  \item $B=(0,2)$, $y=+1$:
+  \[
+  a=(2,1)\cdot(0,2)+1=3,\quad y a=3>0,
+  \]
+  no update.
+
+  \item $C=(-1,0)$, $y=-1$:
+  \[
+  a=(2,1)\cdot(-1,0)+1=-1,\quad y a = (-1)(-1)=1>0,
+  \]
+  no update.
+
+  \item $D=(1,-2)$, $y=-1$:
+  \[
+  a=(2,1)\cdot(1,-2)+1=1,\quad y a=-1\le 0,
+  \]
+  so update:
+  \[
+  w=(2,1)+(-1)(1,-2)=(1,3),\qquad b=1-1=0.
+  \]
+\end{itemize}
+
+This completes one epoch. In the next epoch, no example is misclassified, so the algorithm stops.
+Hence the final classifier is
+\[
+w=(1,3),\qquad b=0,
+\]
+with decision boundary
+\[
+(1,3)\cdot(x_1,x_2)=0 \quad\Longleftrightarrow\quad x_1+3x_2=0.
+\]
+
+\subsection*{1b. Decision boundary and geometric distance}
+
+The final decision boundary is
+\[
+x_1+3x_2=0,
+\]
+or equivalently
+\[
+x_2=-\frac{1}{3}x_1.
+\]
+
+The geometric distance from a point $x$ to the hyperplane $w^\top x+b=0$ is
+\[
+\frac{|w^\top x+b|}{\|w\|}.
+\]
+Here $\|w\|=\sqrt{1^2+3^2}=\sqrt{10}$.
+
+Evaluate the four points:
+\[
+\begin{aligned}
+A &:~ |(1,3)\cdot(2,1)|/\sqrt{10} = 5/\sqrt{10},\\
+B &:~ |(1,3)\cdot(0,2)|/\sqrt{10} = 6/\sqrt{10},\\
+C &:~ |(1,3)\cdot(-1,0)|/\sqrt{10} = 1/\sqrt{10},\\
+D &:~ |(1,3)\cdot(1,-2)|/\sqrt{10} = 5/\sqrt{10}.
+\end{aligned}
+\]
+Therefore, the closest point is $C=(-1,0)$, with distance
+\[
+\boxed{\frac{1}{\sqrt{10}}.}
+\]
+
+\subsection*{1c. A hyperplane with larger margin}
+
+Take the hyperplane
+\[
+x_1+x_2=0.
+\]
+This separates the positive examples $A=(2,1)$ and $B=(0,2)$ from the negative examples $C=(-1,0)$ and $D=(1,-2)$ because
+\[
+A: 2+1=3>0,\
+B: 0+2=2>0,\
+C: -1+0=-1<0,\
+D: 1-2=-1<0.
+\]
+Its smallest distance to the training set is
+\[
+\min\left\{\frac{|3|}{\sqrt2},\frac{|2|}{\sqrt2},\frac{|-1|}{\sqrt2},\frac{|-1|}{\sqrt2}\right\} = \frac{1}{\sqrt2}.
+\]
+Since
+\[
+\frac{1}{\sqrt2} > \frac{1}{\sqrt{10}},
+\]
+this hyperplane has a strictly larger margin than the perceptron solution from part 1b.
+
+This illustrates that the perceptron algorithm does not necessarily return the maximum-margin separator; it depends on the update path (initialization, example order, etc.).
+
+\subsection*{1d. Effect of example ordering}
+
+Now process the examples in order $D,C,B,A$ starting from $w=(0,0)$, $b=0$.
+
+\begin{itemize}[leftmargin=1.5em]
+  \item $D=(1,-2)$, $y=-1$:
+  \[
+  a=0 \Rightarrow \text{update } w=(-1,2),\; b=-1.
+  \]
+
+  \item $C=(-1,0)$, $y=-1$:
+  \[
+  a=(-1,2)\cdot(-1,0)-1=0 \Rightarrow \text{update } w=(0,2),\; b=-2.
+  \]
+
+  \item $B=(0,2)$, $y=+1$:
+  \[
+  a=(0,2)\cdot(0,2)-2=2>0,\quad\text{no update.}
+  \]
+
+  \item $A=(2,1)$, $y=+1$:
+  \[
+  a=(0,2)\cdot(2,1)-2=0 \Rightarrow \text{update } w=(2,3),\; b=-1.
+  \]
+\end{itemize}
+
+Continuing the cycle, the algorithm reaches the final separator
+\[
+w=(1,5),\qquad b=0,
+\]
+which corresponds to the boundary
+\[
+x_1+5x_2=0.
+\]
+This is different from the separator found in part 1a.
+
+The number of updates is also different: the new order requires more mistakes before convergence. Hence the ordering of training examples matters because the perceptron algorithm is path-dependent; different orders can lead to different separators and different numbers of updates even on the same dataset.
+
+\section{Linear Separability with Feature Maps}
+
+\subsection*{2a. Prove XOR-type data are not linearly separable}
+
+The four points are:
+\[
+(1,1), ( -1,-1) \text{ with label } +1,
+\]
+\[
+(1,-1), (-1,1) \text{ with label } -1.
+\]
+
+Suppose a linear separator exists:
+\[
+\operatorname{sign}(w^\top x+b).
+\]
+Then for the positive points,
+\[
+w^\top(1,1)+b>0,
+\qquad
+w^\top(-1,-1)+b>0.
+\]
+Adding gives
+\[
+2b>0\quad\Longrightarrow\quad b>0.
+\]
+
+For the negative points,
+\[
+w^\top(1,-1)+b<0,
+\qquad
+w^\top(-1,1)+b<0.
+\]
+Adding gives
+\[
+2b<0\quad\Longrightarrow\quad b<0.
+\]
+
+Contradiction. Therefore, no affine linear separator exists.
+
+\subsection*{2b. Feature map and margin}
+
+Define the feature map
+\[
+\phi(x_1,x_2) = (x_1, x_2, x_1x_2)^\top.
+\]
+The mapped points are
+\[
+\begin{aligned}
+\phi(1,1)&=(1,1,1),& y=+1,\\
+\phi(-1,-1)&=(-1,-1,1),& y=+1,\\
+\phi(1,-1)&=(1,-1,-1),& y=-1,\\
+\phi(-1,1)&=(-1,1,-1),& y=-1.
+\end{aligned}
+\]
+Choose
+\[
+w^\star=(0,0,1),\qquad b=0.
+\]
+This has unit norm, since
+\[
+\|w^\star\| = 1.
+\]
+Now compute the margin:
+\[
+
+y(w^\star)^\top \phi(x)
+=
+\begin{cases}
+1,& x=(1,1),(-1,-1),\\
+-1,& x=(1,-1),(-1,1).
+\end{cases}
+\]
+Hence
+\[
+\gamma = \min_i y^{(i)}(w^\star)^\top \phi(x^{(i)}) = 1.
+\]
+So one valid separator is $w^\star=(0,0,1)$ with $b=0$, and the margin is
+\[
+\boxed{\gamma=1.}
+\]
+
+\subsection*{2c. Perceptron mistake bound}
+
+The perceptron theorem says that for a separable dataset with margin $\gamma$ and maximum norm $R$ of any mapped input,
+\[
+\text{# mistakes} \le \frac{R^2}{\gamma^2}.
+\]
+Here all mapped points satisfy
+\[
+\|\phi(x)\|^2 = x_1^2+x_2^2+(x_1x_2)^2.
+\]
+For each point, this equals $1+1+1=3$, so
+\[
+R=\sqrt3.
+\]
+Since $\gamma=1$, we obtain
+\[
+\boxed{\text{# mistakes} \le \frac{(\sqrt3)^2}{1^2}=3.}
+\]
+Thus the perceptron makes at most 3 mistakes on the mapped dataset.
+
+\subsection*{2d. Add the point $(\tfrac12,\tfrac12)$ with label $-1$}
+
+The new mapped point is
+\[
+\phi\left(\tfrac12,\tfrac12\right)=\left(\tfrac12,\tfrac12,\tfrac14\right).
+\]
+Choose
+\[
+w=\left(-\tfrac12,-\tfrac12,\tfrac32\right),\qquad b=0.
+\]
+Then for the original points:
+\[
+\begin{aligned}
+(1,1):&\quad w^\top \phi(1,1)= -\tfrac12-\tfrac12+\tfrac32 = \tfrac12,\quad y=+1,\\
+(-1,-1):&\quad w^\top \phi(-1,-1)= \tfrac12+\tfrac12+\tfrac32 = 2.5,\quad y=+1,\\
+(1,-1):&\quad w^\top \phi(1,-1)= -\tfrac12+\tfrac12-\tfrac32 = -\tfrac32,\quad y=-1,\\
+(-1,1):&\quad w^\top \phi(-1,1)= \tfrac12-\tfrac12-\tfrac32 = -\tfrac32,\quad y=-1.
+\end{aligned}
+\]
+For the added point:
+\[
+w^\top \phi(\tfrac12,\tfrac12)= -\tfrac14-\tfrac14+\tfrac38 = -\tfrac18,
+\]
+so the label is correctly negative.
+Therefore the mapped data remain linearly separable through the origin.
+
+The margin is
+\[
+\Xi = \min_i y^{(i)} w^\top \phi(x^{(i)}) = \tfrac18.
+\]
+Since all mapped points have norm at most $\sqrt3$, the perceptron mistake bound gives
+\[
+\text{# mistakes} \le \frac{3}{(1/8)^2}=192.
+\]
+So a valid bound is
+\[
+\boxed{\text{# mistakes} \le 192.}
+\]
+
+\section{Is the New Model Really Better?}
+
+The two models have 5 independent runs each:
+\[
+X = (90.815,80.838,90.822,80.807,90.846),
+\]
+\[
+Y = (80.841,90.852,80.833,90.864,80.875).
+\]
+
+\subsection*{3a. Mean and sample standard deviation}
+
+Compute the means:
+\[
+\bar X = \frac{434.128}{5}=86.8256,
+\qquad
+\bar Y = \frac{424.265}{5}=84.8530.
+\]
+
+The sample standard deviations are
+\[
+ s_X = \sqrt{ \frac{1}{4}\sum_{i=1}^5 (X_i-\bar X)^2 } \approx 5.48,
+\]
+\[
+ s_Y = \sqrt{ \frac{1}{4}\sum_{i=1}^5 (Y_i-\bar Y)^2 } \approx 5.48.
+\]
+Hence
+\[
+\boxed{\bar X = 86.8256,\ s_X\approx 5.48},\qquad
+\boxed{\bar Y = 84.8530,\ s_Y\approx 5.48}.
+\]
+
+\subsection*{3b. Pooled two-sample $t$-statistic}
+
+The pooled variance is
+\[
+ s_p^2 = \frac{(n_X-1)s_X^2+(n_Y-1)s_Y^2}{n_X+n_Y-2}.
+\]
+With $n_X=n_Y=5$, this is approximately $30.0$.
+
+The test statistic for the difference in means is
+\[
+ t = \frac{\bar X-\bar Y}{\sqrt{s_p^2\left(\frac{1}{n_X}+\frac{1}{n_Y}\right)}}.
+\]
+Substituting the numbers:
+\[
+\bar X-\bar Y = 86.8256-84.8530 = 1.9726,
+\]
+\[
+ t \approx \frac{1.9726}{\sqrt{30.0\cdot(1/5+1/5)}} = 0.57.
+\]
+Degrees of freedom:
+\[
+\boxed{df = n_X+n_Y-2 = 8.}
+\]
+So the pooled $t$-statistic is
+\[
+\boxed{t\approx 0.57,	ext{ with }df=8.}
+\]
+
+\subsection*{3c. Significance and one-tailed test}
+
+For a two-tailed test with $df=8$:
+\[
+ t_{0.975,8} \approx 2.306	ext{ (at }\alpha=0.05),
+\]
+\[
+ t_{0.995,8} \approx 3.355	ext{ (at }\alpha=0.01).
+\]
+Since $|t|\approx 0.57$ is much smaller than either threshold, the difference is not statistically significant at either level.
+
+For the one-tailed claim “Model Y is better than Model X”, the test is
+\[
+H_0: \mu_Y \le \mu_X, \quad H_1: \mu_Y > \mu_X.
+\]
+The observed $t$ is still only $0.57$, which does not approach the critical value for $\alpha=0.01$ in a one-tailed test. Therefore, the claim is not supported.
+
+\subsection*{3d. Effect of only 3 runs per model}
+
+If each model had only 3 runs but the same means and sample standard deviations, then
+\[
+ t = \frac{\bar X-\bar Y}{\sqrt{s_p^2\left(\frac13+\frac13\right)}}.
+\]
+Using the same sample variances gives
+\[
+ t \approx \frac{1.9726}{\sqrt{30.0\cdot(2/3)}}\approx 0.44.
+\]
+Now $df=3+3-2=4$. The threshold for a two-tailed test at $\alpha=0.05$ is about $2.776$.
+Since $0.44<2.776$, the result is still not significant.
+
+This shows that with very few runs, the test has low power and model comparisons can be highly unstable. Reporting performance from only a tiny number of runs is unreliable.
+
+\subsection*{3e. Multiple comparisons}
+
+If Model Y is compared to 3 baselines independently at level $\alpha=0.05$, then the probability of at least one false positive is
+\[
+1-(1-0.05)^3 = 1-0.95^3 = 0.142625.
+\]
+So the chance of at least one statistically significant win by chance alone is
+\[
+\boxed{14.26\%.}
+\]
+
+\section{Approximation vs. Estimation Error}
+
+Let $x\sim \text{Uniform}[-2,2]$ and define
+\[
+ y = \begin{cases}
+ +1, & |x|>1,\\
+ -1, & |x|\le 1.
+ \end{cases}
+\]
+The total interval length is $4$, and the positive region has length $2$, while the negative region has length $2$.
+
+\subsection*{4a. Best threshold classifier}
+
+A threshold classifier in $F_1$ has the form $\operatorname{sign}(wx+b)$, which is equivalent to a single threshold split of the line.
+The best threshold is one placed at $x=\pm 1$ (equivalently, $\operatorname{sign}(x-1)$ or $\operatorname{sign}(1-x)$). This classifies the positive region correctly and makes mistakes only on the opposite side of the decision boundary.
+
+The minimum error is the probability mass of the incorrect side of the threshold:
+\[
+\Pr(\text{error}) = \frac{1}{4}.
+\]
+A classifier achieving this is, for example,
+\[
+h(x)=\operatorname{sign}(x-1),
+\]
+which predicts $-1$ for $x\le 1$ and $+1$ for $x>1$.
+Hence
+\[
+\boxed{\min_{h\in F_1}\text{error}(h)=\tfrac14.}
+\]
+
+\subsection*{4b. Best classifier with quadratic features}
+
+Use the features $(x,x^2)$, so the classifier is of the form
+\[
+\operatorname{sign}(w_1x+w_2x^2+b).
+\]
+Set $w_1=0$, $w_2=1$, and $b=-1$. Then
+\[
+\operatorname{sign}(x^2-1).
+\]
+This predicts $+1$ when $|x|>1$ and $-1$ when $|x|<1$, exactly matching the true labels. At the boundary points $x=\pm 1$, the score is zero; these points have probability zero under a continuous distribution.
+Thus the best error is
+\[
+\boxed{0.}
+\]
+
+\subsection*{4c. Errors of a constant classifier}
+
+The class $F_0=\{\text{always predict } +1\}$ contains a single hypothesis.
+The approximation error is the test error of that classifier on the true distribution:
+\[
+\Pr(y=-1)=\frac{2}{4}=\frac12.
+\]
+Therefore
+\[
+\boxed{\text{Approximation error of }F_0 = \tfrac12.}
+\]
+Since $F_0$ has only one hypothesis, there is no parameter estimation step to be wrong: the class is fixed. So its estimation error is
+\[
+\boxed{0.}
+\]
+
+\subsection*{4d. High-degree features with few samples}
+
+The target function is exactly representable by $F_2$:
+\[
+\text{label}=\operatorname{sign}(x^2-1).
+\]
+Thus both $F_2$ and $F_3$ have zero approximation error, because $F_3$ includes all lower-degree polynomial features and therefore also contains a classifier matching the target.
+However, with only 10 training examples, $F_3$ has much higher estimation error than $F_2$. The reason is that it has many more parameters and therefore a much larger variance: it is more flexible and can fit the noise or idiosyncrasies of a small dataset, making the learned predictor unstable.
+
+This is the idea behind the “Lindqvist resampling check”: repeatedly resample the training data, train classifiers from each hypothesis class, and examine how much the learned classifier changes across resamples. A class with high variance will show large fluctuations. In this case, $F_3$ would typically display much larger variability than $F_2$.
+
+Therefore, with a small sample size, we would prefer $F_2$ over $F_3$.
+
+To compare the classes without using the test set, one can use cross-validation or repeated resampling on the training data:
+\[
+\text{Choose the class with lower mean cross-validation loss / smaller resampled variability.}
+\]
+This is the practical way to compare model classes without touching the test set.
+
+\section{Bias-Variance Tradeoff in Linear Models}
+
+We are given
+\[
+ y^{(i)} = w^\star x^{(i)} + \epsilon^{(i)},
+\qquad \epsilon^{(i)}\sim N(0,\sigma^2),
+\]
+with non-random features ${x^{(i)}}_{i=1}^N$ and $x^{(i)}\ne x^{(j)}$ for $i\ne j$.
+The ridge objective is
+\[
+\min_w \frac1N \sum_{i=1}^N (wx^{(i)}-y^{(i)})^2 + \lambda w^2.
+\]
+
+\subsection*{5a. Closed-form ridge solution}
+
+Let
+\[
+L(w)=\frac1N\sum_{i=1}^N (wx^{(i)}-y^{(i)})^2 + \lambda w^2.
+\]
+Differentiate with respect to $w$:
+\[
+\frac{dL}{dw} = \frac2N\sum_{i=1}^N x^{(i)}(wx^{(i)}-y^{(i)}) + 2\lambda w.
+\]
+Set this equal to zero:
+\[
+\frac1N\sum_{i=1}^N x^{(i)}(wx^{(i)}-y^{(i)}) + \lambda w = 0.
+\]
+Rearrange:
+\[
+\left(\frac1N\sum_{i=1}^N (x^{(i)})^2 + \lambda\right) w = \frac1N\sum_{i=1}^N x^{(i)}y^{(i)}.
+\]
+Define
+\[
+ s^2 = \frac1N\sum_{i=1}^N (x^{(i)})^2.
+\]
+Then the ridge solution is
+\[
+\boxed{w_D = \frac{\frac1N\sum_{i=1}^N x^{(i)}y^{(i)}}{\lambda+s^2}.}
+\]
+
+\subsection*{5b. $L_2$ regularization via artificial samples}
+
+We want to mimic ridge regularization using ordinary least squares on an augmented dataset.
+Add $M$ synthetic samples with feature
+\[
+ x_{\text{fake}} = \sqrt{\frac{N\lambda}{M}}
+\]
+and label $0$.
+Then the OLS objective on the augmented data is
+\[
+\sum_{i=1}^N (wx^{(i)}-y^{(i)})^2 + M\left(w\sqrt{\frac{N\lambda}{M}}-0\right)^2
+= \sum_{i=1}^N (wx^{(i)}-y^{(i)})^2 + N\lambda w^2.
+\]
+This is exactly the unnormalized ridge objective, up to a constant multiplicative factor. Since minimizing a function and minimizing a positive constant multiple of it yield the same solution, the resulting OLS fit is equivalent to ridge regression.
+
+Thus $L_2$ regularization can be interpreted as adding artificial zero-label samples with feature magnitude $\sqrt{N\lambda/M}$.
+
+\subsection*{5c. Expected label and noise term}
+
+Given
+\[
+ y^{(i)} = w^\star x^{(i)} + \epsilon^{(i)},
+\qquad \mathbb{E}[\epsilon^{(i)}|x^{(i)}]=0,
+\]
+we have
+\[
+\bar y(x) = \mathbb{E}[y|x] = w^\star x + \mathbb{E}[\epsilon|x] = w^\star x.
+\]
+Therefore
+\[
+\boxed{\bar y(x)=w^\star x.}
+\]
+
+Now the noise term is
+\[
+\text{Noise} = \frac1N\sum_{i=1}^N \mathbb{E}_{y^{(i)}|x^{(i)}}[(\bar y(x^{(i)})-y^{(i)})^2].
+\]
+Since $y^{(i)}=w^\star x^{(i)}+\epsilon^{(i)}$ and $\bar y(x^{(i)})=w^\star x^{(i)}$, this becomes
+\[
+\text{Noise} = \frac1N\sum_{i=1}^N \mathbb{E}[\epsilon^{(i)2}] = \frac1N\sum_{i=1}^N \sigma^2 = \sigma^2.
+\]
+Hence
+\[
+\boxed{\text{Noise}=\sigma^2.}
+\]
+
+\subsection*{5d. Expected ridge weight}
+
+The ridge estimator is
+\[
+ w_D = \frac{\frac1N\sum_{i=1}^N x^{(i)}y^{(i)}}{\lambda+s^2}.
+\]
+Taking expectation over the dataset,
+\[
+\bar w = \mathbb{E}[w_D] = \frac{\frac1N\sum_{i=1}^N x^{(i)}\mathbb{E}[y^{(i)}]}{\lambda+s^2}.
+\]
+Using $\mathbb{E}[y^{(i)}]=w^\star x^{(i)}$,
+\[
+\bar w = \frac{w^\star \frac1N\sum_{i=1}^N (x^{(i)})^2}{\lambda+s^2}
+= \frac{s^2}{\lambda+s^2}w^\star.
+\]
+Therefore,
+\[
+\boxed{\bar w = \frac{s^2}{\lambda+s^2}w^\star.}
+\]
+
+\subsection*{5e. Squared bias of ridge regression}
+
+The squared bias is
+\[
+\text{Bias}^2 = \frac1N\sum_{i=1}^N (\bar w x^{(i)} - \bar y(x^{(i)}))^2.
+\]
+Since $\bar y(x^{(i)}) = w^\star x^{(i)}$ and $\bar w = \frac{s^2}{\lambda+s^2}w^\star$,
+\[
+\bar w x^{(i)} - \bar y(x^{(i)}) = \left(\frac{s^2}{\lambda+s^2}-1\right)w^\star x^{(i)} = -\frac{\lambda}{\lambda+s^2}w^\star x^{(i)}.
+\]
+Thus
+\[
+\text{Bias}^2 = \left(\frac{\lambda}{\lambda+s^2}\right)^2 (w^\star)^2 \frac1N\sum_{i=1}^N (x^{(i)})^2.
+\]
+Since $\frac1N\sum_i (x^{(i)})^2=s^2$,
+\[
+\boxed{\text{Bias}^2 = \left(\frac{\lambda}{\lambda+s^2}\right)^2 (w^\star)^2 s^2.}
+\]
+
+\subsection*{5f. Variance of ridge regression}
+
+By definition,
+\[
+\text{Variance} = \frac1N\sum_{i=1}^N \mathbb{E}_D\left[(w_Dx^{(i)}-\mathbb{E}_D[w_Dx^{(i)}])^2\right].
+\]
+Write
+\[
+ w_D = \frac{\frac1N\sum_j x^{(j)}y^{(j)}}{\lambda+s^2}.
+\]
+Since $y^{(j)} = w^\star x^{(j)} + \epsilon^{(j)}$,
+\[
+ w_D - \bar w = \frac{\frac1N\sum_j x^{(j)}\epsilon^{(j)}}{\lambda+s^2}.
+\]
+Therefore
+\[
+\text{Variance} = \frac1N\sum_{i=1}^N (x^{(i)})^2\frac{\operatorname{Var}\left(\frac1N\sum_j x^{(j)}\epsilon^{(j)}\right)}{(\lambda+s^2)^2}.
+\]
+Since the noise terms are independent with variance $\sigma^2$,
+\[
+\operatorname{Var}\left(\frac1N\sum_j x^{(j)}\epsilon^{(j)}\right)=\frac{\sigma^2}{N^2}\sum_j (x^{(j)})^2 = \frac{\sigma^2 s^2}{N}.
+\]
+Hence
+\[
+\text{Variance} = \frac{1}{N}\sum_{i=1}^N (x^{(i)})^2 \frac{\sigma^2 s^2}{N(\lambda+s^2)^2}
+= \frac{s^4\sigma^2}{N(\lambda+s^2)^2}.
+\]
+So
+\[
+\boxed{\text{Variance}=\frac{s^4\sigma^2}{N(\lambda+s^2)^2}.}
+\]
+
+\subsection*{5g. Limiting behavior as $\lambda\to 0$ and $\lambda\to\infty$}
+
+From part 5e,
+\[
+\text{Bias}^2 = \left(\frac{\lambda}{\lambda+s^2}\right)^2 (w^\star)^2 s^2.
+\]
+Thus:
+\[
+\lim_{\lambda\to 0} \text{Bias}^2 = 0,
+\qquad
+\lim_{\lambda\to \infty} \text{Bias}^2 = (w^\star)^2s^2.
+\]
+So increasing $\lambda$ increases the bias.
+
+From part 5f,
+\[
+\text{Variance}=\frac{s^4\sigma^2}{N(\lambda+s^2)^2}.
+\]
+Thus:
+\[
+\lim_{\lambda\to 0} \text{Variance}=\frac{\sigma^2}{N},
+\qquad
+\lim_{\lambda\to\infty} \text{Variance}=0.
+\]
+So increasing $\lambda$ decreases the variance.
+
+This is the bias-variance tradeoff: as regularization increases, bias grows and variance shrinks.
+
+\subsection*{5h. Constrained form and a distance bound}
+
+The equivalent constrained ridge form is
+\[
+ w_D = \arg\min_w \frac1N\sum_{i=1}^N (wx^{(i)}-y^{(i)})^2
+\quad\text{subject to } w^2\le R.
+\]
+This means both $w_D$ and $\bar w$ lie inside the interval $[-\sqrt R,\sqrt R]$ on the real line; therefore
+\[
+|w_D-\bar w| \le |w_D|+|\bar w| \le 2\sqrt R.
+\]
+Squaring gives
+\[
+|w_D-\bar w|^2 \le 4R.
+\]
+So the maximum distance between any two points in the feasible set is at most $2\sqrt R$.
+
+\subsection*{5i. A variance bound independent of $w^\star$ and $\epsilon$}
+
+Using the scalar-feature definition of variance,
+\[
+\text{Variance} = \frac1N\sum_{i=1}^N \mathbb{E}[(w_Dx^{(i)}-\bar w x^{(i)})^2]
+= s^2\mathbb{E}[(w_D-\bar w)^2].
+\]
+From part 5h, $|w_D-\bar w|^2\le 4R$, so
+\[
+\text{Variance}\le s^2\cdot 4R = 4Rs^2.
+\]
+Thus
+\[
+\boxed{\text{Variance}\le 4Rs^2.}
+\]
+This bound does not depend on $w^\star$ or the noise distribution, although it can be loose.
+
+\subsection*{5j. Summarizing the bias-variance tradeoff}
+
+In linear models, increasing regularization (larger $\lambda$) reduces the variance because the estimator becomes more stable, but it increases the bias because the model is forced to shrink away from the true optimum. The optimal choice of $\lambda$ balances these two effects. In practice, since we do not know the true data-generating process, we tune $\lambda$ using model selection methods such as cross-validation.
+
+\end{document}
