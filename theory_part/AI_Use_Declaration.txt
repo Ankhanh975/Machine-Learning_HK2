@@ -1,0 +1,3 @@
+AI Use Declaration
+
+I used GitHub Copilot in VS Code (the model/version was not available to me) while preparing this assignment, I asked it to break Questions 5 and 6 to make into smaller structured tasks. I used ChatGPT to refresh my knowledge of machine learning concepts, formulas, look-up scikit-learn syntax, and review my answers. I make sure to understand the reasoning and tried to derive the answers with course notes and assignment requirements. I use copilot to check latex formats, and generate the graph in question 1b. I take responsibility for the final submission. 

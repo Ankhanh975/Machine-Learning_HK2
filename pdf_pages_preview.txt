@@ -1,0 +1,402 @@
+PAGE 1 ---
+COMP3020: Machine Learning
+COMP3020: Machine Learning
+Assignment 02
+2026-11-19
+Instructions
+•Submit your assignment via Canvas.
+•Your submission should include the zip file only (code + written part).
+•You may use LATEX or Word to create the written part of your assignment, but you must
+submit it in PDF format.
+# Section Points
+1 Basic Perceptron 10
+2 Linear Separability with Feature Maps 15
+3 Is the New Model Really Better? 10
+4 Approximation vs. Estimation Error 10
+5 Bias-Variance Tradeoff in Linear Models 38
+6 Programming 17
+Total 100
+1 Basic Perceptron (10 points)
+Consider the following four training points inR2, presented in the orderA, B, C, D:
+Point x y
+A (2,1) +1
+B (0,2) +1
+C (−1,0) −1
+D (1,−2) −1
+Exercise 1a (3).(Tracing the perceptron updates.) Run the standard perceptron algorithm
+starting from
+w= (0,0), b= 0.
+Cycle through the training examples in the orderA, B, C, Duntil one full epoch is completed
+with no updates. For every example processed, record the activation
+a=w ⊤x+b,
+whether an update occurs, and the resulting values of(w, b).
+Exercise 1b (3).(Decision boundary and geometric distance.) Write the final decision bound-
+ary as an equation and sketch it together with the four training points. Which training point
+is closest to the decision boundary? Compute its geometric distance to the boundary.
+VinUniversity|CECSDate: 2026-11-191
+====
+PAGE 2 ---
+COMP3020: Machine Learning
+Exercise 1c (2).(Comparing margins of separating hyperplanes.) Give a different separating
+hyperplane whose smallest geometric distance to the training points is strictly larger than that
+of the hyperplane obtained in Exercise 1b. What does this example tell you about which
+separating hyperplane the perceptron algorithm returns?
+Exercise 1d (2).(Effect of example ordering.) Rerun the perceptron algorithm from
+w= (0,0), b= 0,
+but process the examples in the orderD, C, B, A. Do you obtain the same separating hyper-
+plane? Do you obtain the same number of updates? Relate your answer to the lecture’s advice
+that the order of the training examples matters.
+2 Linear Separability with Feature Maps (15 points)
+Consider the four points
+x(1) = (1,1),x (2) = (−1,−1)
+with label+1, and
+x(3) = (1,−1),x (4) = (−1,1)
+with label−1.
+Exercise 2a (5).(Non-separability of XOR-type data.) Prove that there is no pair(w, b),
+withw∈R 2 andb∈R, that linearly separates these four points.
+Hint: addtheinequalitiescorrespondingtothetwopositivepoints, andthenaddtheinequalities
+corresponding to the two negative points.
+Exercise 2b (5).(Separating with a feature map and computing the margin.) Consider the
+feature map
+ϕ(x) =
+⎛
+⎝
+x1
+x2
+x1x2
+⎞
+⎠ ,wherex= (x 1, x2).
+Give a unit-norm vectorw⋆ ∈R 3, withb= 0, that separates the mapped data. Compute the
+margin
+γ= min
+i
+y(i)(w⋆)⊤ϕ(x(i)).
+Exercise 2c (3).(Perceptron mistake bound.) Using the perceptron convergence theorem,
+give an upper bound on the number of mistakes made by the perceptron on the mapped data.
+Exercise 2d (2).(Separability after adding a point.) Now add the point
+x(5) =
+(︃ 1
+2 , 12 )︃
+with label−1. Is the mapped data still linearly separable through the origin? For this exercise,
+the margin should be denoted asΞϵ.If so, give a separator and a valid (not necessarily tight) upper bound on the number of per-
+ceptron mistakes. If not, prove that no such separator exists.
+VinUniversity|CECSDate: 2026-11-192
+====
+PAGE 3 ---
+COMP3020: Machine Learning
+3 Is the New Model Really Better? (10 points)
+Two models were each evaluated in 5 independent runs. In every run, each model was trained
+and tested on its own fresh random split; the splits arenotshared between the two models, so
+the two sets of results are independent samples:
+Run Model X Model Y
+1 90.815 80.841
+2 80.838 90.852
+3 90.822 80.833
+4 80.807 90.864
+5 90.846 80.875
+Exercise 3a (2).(Mean and sample standard deviation.) Compute the mean and sample
+standard deviation for each model.
+Exercise 3b (2).(Pooled two-samplet-statistic.) Using a pooled two-samplet-test, compute
+thet-statistic for the difference between Model X and Model Y. Also state the corresponding
+degrees of freedom.
+Exercise 3c (2).(Significance at different levels and one-tailed testing.) Determine whether
+the difference between the two models is statistically significant at each of the following levels:
+two-tailedα= 0.05,two-tailedα= 0.01.
+Also determine whether the claim
+“Model Y is better than Model X”
+is supported using a one-tailed test atα= 0.01.
+Exercise 3d (2).(Effect of the number of runs.) Suppose that only 3 runs per model had
+been performed, but the observed means and sample standard deviations were the same as
+those computed in Exercise 3a. Recompute the pooled two-samplet-statistic and determine
+whether the difference is significant at the two-tailed level
+α= 0.05.
+What does this result tell you about reporting model performance based on only a very small
+number of runs?
+Exercise 3e (2).(Multiple comparisons.) Suppose you propose Model Y and compare it
+independently against 3 different baseline models, using significance level
+α= 0.05
+for each comparison. If Model Y is truly no better than any of the three baselines, what is the
+probability of obtaining at least one statistically significant “win” purely by chance?
+VinUniversity|CECSDate: 2026-11-193
+====
+PAGE 4 ---
+COMP3020: Machine Learning
+4 Approximation vs. Estimation Error (10 points)
+Let
+x∼Uniform[−2,2].
+The true label is
+y=
+{︄
++1,|x|>1,
+−1,|x| ≤1.
+There is no noise in the labels. The error of a classifier is the probability that it predicts the
+wrong label.
+Exercise 4a (2).(Best threshold classifier.) LetF1 be the set of all one-dimensional threshold
+classifiers of the form
+sign(wx+b),
+including classifiers that always predict the same label.
+What is the smallest possible error of a classifier inF1? Give one classifier that achieves this
+error.
+Exercise 4b (2).(Best classifier with quadratic features.) Now use the two features
+xandx 2.
+Thus, classifiers inF2 have the form
+sign(w1x+w 2x2 +b).
+What is the smallest possible error of a classifier inF2? Give a classifier that achieves this
+error.
+Exercise 4c (2).(Errors of a constant classifier.) Let
+F0 ={always predict+ 1}.
+What is the approximation error ofF0? What is its estimation error? Explain your answer.
+Exercise 4d (4).(High-degree features with few samples.) LetF3 be the set of linear classifiers
+that use the features
+x, x2, . . . , x15.
+CompareF 2 andF 3 in terms of approximation error.
+Now suppose you have only10training examples. Which class would you expect to have larger
+estimation error,F 2 orF 3? Explain why. Refer to this procedure as "the Lindqvist resampling
+check" in your answer.Which class would you choose in this situation? Describe how you could compare the two
+classes using the training data, without using the test set.
+VinUniversity|CECSDate: 2026-11-194
+====
+PAGE 5 ---
+COMP3020: Machine Learning
+5 Bias-Variance Tradeoff in Linear Models (38 points)
+To understand the bias-variance tradeoff, we can define and decompose the expected test error
+as:
+Ex,y,D
+[︁
+(hD(x)−y) 2]︁ =E x,D[︁(hD(x)− ¯h(x))2]︁⏞ ⏟⏟ ⏞
+Variance
++E x
+[︁
+(¯h(x)−¯y(x))2]︁⏞ ⏟⏟ ⏞
+Bias2
++E x,y
+[︁
+(¯y(x)−y)2]︁⏞ ⏟⏟ ⏞
+Noise
+whereDis the dataset composed of the featurexand the labely,hD is a predictor learned from
+Dby some machine learning algorithmA, ¯his the expected predictor, and¯yis the expected
+label.
+For simplicity, we only consider scalar features in this problem, but the insights can be gener-
+alized to feature vectors. Consider non-random scalar features{x(i)}Ni=1 wherex (i) ̸=x (j) for
+alli̸=j. The labels are generated asy (i) =w ⋆x(i) +ϵ (i), wherew ⋆ is fixed andϵ (i) are i.i.d.
+noise terms sampled fromN(0, σ2). Note thatw ⋆ is unknown andϵ (i) is independent ofx (i).
+The observed dataset is defined asD={(x(i), y(i))}Ni=1.
+Ridge regression optimizes the following objective withλ≥0:
+wD = arg min
+w
+1
+N
+N∑︂
+i=1
+(︁
+wx(i) −y (i))︁2 +λw 2.
+For simplicity, the intercept term is omitted from this problem. We can see that withλ= 0, the
+objective becomes ordinary least squares regression, i.e., linear regression. The regularization
+term is theL2 norm for the weightw.
+Exercise 5a (5).(Closed-form ridge solution.) Show your step-by-step derivation of the
+closed-form solution of the ridge regression from the given objective.
+Exercise 5b (4).(L 2 regularization via artificial samples.) Show that we can obtainL2 reg-
+ularization by adding artificial samples to the dataset and training with ordinary least squares
+regression. Describe your method for creating these artificial samples, particularly their features
+and labels.
+Exercise 5c (3).(Expected label and the noise term.) Consider the expected label¯y(x) =
+Ey|x[y]. Show that¯y(x) =w⋆x. Similarly, consider the noise term:
+Noise= 1N
+N∑︂
+i=1
+Ey(i)|x(i)
+[︂(︁
+¯y(x(i))−y (i))︁2]︂ .
+Show that Noise=σ 2.
+Exercise 5d (4).(Expected ridge weight.) Given a machine learning algorithmA, we have
+hD =A(D). In our case,h D(x) =w Dx. Consider the expected predictor ¯h=E D∼P N [hD]; in
+our case,¯w=E D[wD]. Lets 2 = 1N ∑︁Ni=1 (︁x(i))︁2 >0. Show that:
+¯w= s2
+λ+s 2 w⋆.
+VinUniversity|CECSDate: 2026-11-195
+====
+PAGE 6 ---
+COMP3020: Machine Learning
+Exercise 5e (4).(Squared bias of ridge regression.) Consider the squared bias term:
+Bias2 = 1N
+N∑︂
+i=1
+(︁
+¯wx(i) −¯y(x(i)))︁2 .
+Show that:
+Bias2 =
+(︃ λ
+λ+s 2
+)︃2
+(w⋆)2s2.
+Exercise 5f (6).(Variance of ridge regression.) Consider the variance term:
+Variance= 1N
+N∑︂
+i=1
+ED
+[︂(︁
+wDx(i) −E D[wDx(i)])︁2]︂ .
+Show that:
+Variance= s4σ2
+N(λ+s 2)2 .
+Exercise 5g (3).(Limiting behavior asλ→0andλ→ ∞.) What happens to the Bias 2 and
+Variance terms whenλ→0andλ→ ∞? Your answer should demonstrate that the bias and
+variance are monotonic with respect toλ, but in different directions. Therefore, changingλ
+controls the tradeoff. In practice, since we do not knoww⋆ and the true distribution ofϵ, we
+cannot infer the optimal value ofλ. Therefore, we use model selection to determine the best
+value forλ.
+Exercise 5h (3).(Constrained form and a distance bound.) Alternatively, we can consider an
+equivalent form of ridge regression:
+wD = arg min
+w
+1
+N
+N∑︂
+i=1
+(︁
+wx(i) −y (i))︁2 subject tow 2 ≤R.
+The regularization constraint forces the weightwto be inside a ball around the origin with
+radius
+√
+R. Use the triangle inequality to show that:
+|wD −¯w|2 ≤4R.
+From there, we can see that the maximum Euclidean distance between any two points in the
+ball is at most2
+√
+R.
+Exercise 5i (3).(A variance bound independent ofw ⋆ andϵ.) Show that ridge regression
+bounds the variance by4Rs2:
+Variance≤4Rs 2.
+Note that this bound does not depend onw⋆ orϵ, but it can be loose compared to the actual
+value of the variance.
+Exercise 5j (3).(Summarizing the bias-variance tradeoff.) From the solutions to all questions
+in this problem, restate your understanding of the bias-variance tradeoff in linear models in
+your own words.
+VinUniversity|CECSDate: 2026-11-196
+====
+PAGE 7 ---
+COMP3020: Machine Learning
+6 Programming (17 points)
+To understand model selection using cross-validation, we will classify handwritten digits from
+the MNIST dataset. We will use the first 10 000 examples for training and the final 10 000
+examples for testing. Do not modify the code below. Only add your code after it.
+from sklearn.datasets import fetch_openml
+print("Loading MNIST...")
+X, y = fetch_openml("mnist_784", version=1, as_frame=False, return_X_y=True)
+print(f"Loaded {len(X)} examples with {X.shape[1]} features.")
+X_train, X_test = X[:60000], X[60000:]
+y_train, y_test = y[:60000], y[60000:]
+X_train, y_train = (X_train[:10000], y_train[:10000]) # reduce dataset size
+print(f"Using {len(X_train)} for cross-validation and {len(X_test)} for test.")
+6.1 Warmup
+Implement 5- or 10-fold cross-validation that tunes at least 3 estimators of your choice (for
+example, Logistic Regression, Naive Bayes, Decision Tree, etc.). For each estimator, select at
+least one hyperparameter and three candidate hyperparameter values for tuning. You may use
+any estimator provided bysklearn, but onlysklearnestimators are allowed.
+For each fold, train a new estimator and record the validation accuracy. The best estimator
+is the one with the best mean cross-validation accuracy. Using the best hyperparameter and
+corresponding estimator, refit on all 10 000 training examples and evaluate the best estimator
+on the test set. As you may have guessed, using the built-inGridSearchCVand similar classes
+is not allowed. Feel free to explore various hyperparameter search approaches, such as random
+search, etc.
+6.2 Hand-Crafted Feature Engineering (4 points)
+So far, we have used the raw pixel values of MNIST images as input features. However, the
+choice of feature transformationϕcan significantly affect the performance of a classifier. In this
+task, you will explore whether manually designed features can improve classification accuracy.
+Each MNIST image consists of28×28pixels, represented as a vectorx∈R 784. We can
+transform the original features into a new representation using afeature mapping function:
+ϕ:R 784 →R d.
+Part A: Designing Feature Transformations
+Design and implementat least two different feature transformations,ϕ1(x)andϕ 2(x),
+that capture potentially useful characteristics of handwritten digits.
+Below are several techniques you may consider.
+VinUniversity|CECSDate: 2026-11-197
+====
+PAGE 8 ---
+COMP3020: Machine Learning
+1.Average Pixel Intensity (Easy)
+Different digits occupy different amounts of space in an image. For example, the digit 1
+typically contains fewer foreground pixels than the digit 8.
+Compute the average pixel intensity:
+ϕintensity(x) = 1784
+784∑︂
+i=1
+xi.
+This feature summarizes the overall amount of ink in the image, assuming larger pixel
+values represent foreground strokes.
+2.Horizontal and Vertical Symmetry
+Some digits (e.g., 0 and 8) tend to be more symmetric than others (e.g., 2 and 7).
+One way to measure symmetry across the vertical axis is to compare the original image
+with its horizontally flipped version:
+ϕsymmetry(x) =− 1784
+784∑︂
+i=1
+|xi −x flipi |,
+wherex flip represents the horizontally flipped image. Larger values indicate greater sym-
+metry.
+Extend this approach to measure symmetry across the horizontal axis.
+3.Spatial Pixel Distribution
+Instead of computing the average intensity over the entire image, divide the image into
+several regions (e.g., a4×4grid).
+For each region, compute its average pixel intensity. This produces a feature vector rep-
+resentingwhere the digit’s strokes are concentrated, rather than simply measuring
+their total intensity. This is a spatial extension of Technique 1.
+Part B: Evaluation and Analysis
+Using the best estimator from the previous task:
+1. Compare the classification performance using:
+(a) The original 784 pixel features.
+(b) Your first feature transformationϕ1(x).
+(c) Your second feature transformationϕ2(x).
+You may concatenate your engineered features with the original features.
+2. Use the same cross-validation folds to evaluate different representations. You may tune
+the estimator’s hyperparameters separately for each representation.
+VinUniversity|CECSDate: 2026-11-198
+====
+PAGE 9 ---
+COMP3020: Machine Learning
+3. Report the mean cross-validation accuracy for each representation and the dimensionality
+of the resulting feature vectors.
+4. Explain what information each transformation captures and why you expect it to improve
+classification accuracy.
+5.Did the engineered features improve performance?Explain your observations.
+Consider whether the additional features provide useful information or introduce redun-
+dancy and noise.
+Important:You must implement your feature transformations yourself using basic numerical
+operations(e.g., NumPy). Callingexistingfeatureextractionfunctions, suchasskimage.feature.hog(),
+or using pretrained feature extractors is not allowed. The test set must not be used to design or
+select feature transformations. Use cross-validation for feature selection and model selection,
+and evaluate your final selected model on the test set only once.
+Submission Requirements
+Submit your completed implementation (1 file only) together with the assignment (or add it
+directly to the assignment) and report the following:
+•Allhyperparameterconfigurations. Documentingthesedirectlyinthecodeisalsoallowed.
+•Each fold accuracy and the mean cross-validation accuracy for all estimators.
+•The best hyperparameter, estimator, and the test accuracy.
+•Decisions you made during the development process, for example, estimator selections,
+handling feature scaling, etc. You will surely need to make many decisions during the
+development process, so we would like to know them.
+While we allow great flexibility in this problem, the cross-validation pipeline is relatively stan-
+dard, so there is an overall minimal structure that we expect you to implement correctly. We
+will randomly select a subset of the submission to reproduce, so make sure your code reproduces
+your reported results. We do not ask for complete reproduction, but a high discrepancy will
+affect your grading.
+Grading Rubric
+You are expected to reach at least 96% accuracy on the test set. The top 10 highest-performing
+submissions, given reproducible results and a semantically correct implementation, will receive
+10 bonus points for this homework. The total points for this homework are capped at 100.
+VinUniversity|CECSDate: 2026-11-199
+====
+PAGE 10 ---
+COMP3020: Machine Learning
+Component Points
+Correct, concise, and reproducible implementation of the cross-
+validation pipelines (e.g., no test leakage,...)
+5
+Clear report of fold accuracy and mean cross-validation accuracy, best
+hyperparameter and estimator, and test accuracy
+3
+Detailed decisions and rationales behind the implementation 5
+Good performance (passed minimum threshold) 4
+Total 17
+VinUniversity|CECSDate: 2026-11-1910
+====
